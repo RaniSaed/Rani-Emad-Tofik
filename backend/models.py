@@ -1,3 +1,4 @@
+
 from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
@@ -9,14 +10,23 @@ class Product(db.Model):
     sku = db.Column(db.String(50), unique=True, nullable=False)
     stock_level = db.Column(db.Integer, default=0)
 
+    # עמודות נוספות:
+    category = db.Column(db.String(50), nullable=True)
+    price = db.Column(db.Float, nullable=True)
+    cost = db.Column(db.Float, nullable=True)
+
     def to_dict(self):
         """Convert the product to a dictionary."""
         return {
             'id': self.id,
             'name': self.name,
             'sku': self.sku,
-            'stock_level': self.stock_level
+            'stock_level': self.stock_level,
+            'category': self.category,
+            'price': self.price,
+            'cost': self.cost
         }
+
 
 class RestockLog(db.Model):
     """Model for restock logs."""
@@ -26,10 +36,9 @@ class RestockLog(db.Model):
     timestamp = db.Column(db.DateTime, server_default=db.func.now())
 
     def to_dict(self):
-        """Convert the restock log to a dictionary."""
         return {
             'id': self.id,
             'product_id': self.product_id,
             'quantity': self.quantity,
-            'timestamp': self.timestamp
+            'timestamp': self.timestamp.isoformat()
         }
