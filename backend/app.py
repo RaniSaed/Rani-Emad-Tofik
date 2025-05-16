@@ -8,9 +8,7 @@ app.config.from_object(Config)
 CORS(app)
 db.init_app(app)
 
-@app.before_first_request
-def create_tables():
-    db.create_all()
+
 
 @app.route('/api/products', methods=['GET', 'POST'])
 def manage_products():
@@ -88,4 +86,7 @@ def stock_analytics():
     return jsonify({'message': 'Analytics data will be here.'}), 200
 
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)
+
