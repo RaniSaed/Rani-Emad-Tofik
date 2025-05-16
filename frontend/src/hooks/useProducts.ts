@@ -1,78 +1,50 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Product } from "@/types";
-import { mockProducts } from "@/mockData";
-import { v4 as uuidv4 } from "uuid";
 
-// In a real app, these would fetch from your API
+// פונקציות עם קריאות fetch אמיתיות ל־backend
+
 const fetchProducts = async (): Promise<Product[]> => {
-  // Simulate API call
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(mockProducts);
-    }, 500);
-  });
+  const res = await fetch("http://localhost:5000/api/products");
+  if (!res.ok) throw new Error("Failed to fetch products");
+  return res.json();
 };
 
-const fetchProduct = async (id: string): Promise<Product | undefined> => {
-  // Simulate API call
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const product = mockProducts.find((p) => p.id === id);
-      resolve(product);
-    }, 500);
-  });
+const fetchProduct = async (id: string): Promise<Product> => {
+  const res = await fetch(`http://localhost:5000/api/products/${id}`);
+  if (!res.ok) throw new Error("Failed to fetch product");
+  return res.json();
 };
 
-const createProduct = async (productData: Omit<Product, "id" | "createdAt" | "updatedAt">): Promise<Product> => {
-  // Simulate API call
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      const newProduct: Product = {
-        id: uuidv4(),
-        ...productData,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      mockProducts.push(newProduct);
-      resolve(newProduct);
-    }, 500);
+const createProduct = async (
+  productData: Omit<Product, "id" | "createdAt" | "updatedAt">
+): Promise<Product> => {
+  const res = await fetch("http://localhost:5000/api/products", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(productData),
   });
+  if (!res.ok) throw new Error("Failed to create product");
+  return res.json();
 };
 
-const updateProduct = async (id: string, productData: Partial<Product>): Promise<Product> => {
-  // Simulate API call
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const index = mockProducts.findIndex((p) => p.id === id);
-      if (index !== -1) {
-        const updatedProduct = {
-          ...mockProducts[index],
-          ...productData,
-          updatedAt: new Date().toISOString(),
-        };
-        mockProducts[index] = updatedProduct;
-        resolve(updatedProduct);
-      } else {
-        reject(new Error("Product not found"));
-      }
-    }, 500);
+const updateProduct = async (
+  id: string,
+  productData: Partial<Product>
+): Promise<Product> => {
+  const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(productData),
   });
+  if (!res.ok) throw new Error("Failed to update product");
+  return res.json();
 };
 
 const deleteProduct = async (id: string): Promise<void> => {
-  // Simulate API call
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      const index = mockProducts.findIndex((p) => p.id === id);
-      if (index !== -1) {
-        mockProducts.splice(index, 1);
-        resolve();
-      } else {
-        reject(new Error("Product not found"));
-      }
-    }, 500);
+  const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+    method: "DELETE",
   });
+  if (!res.ok) throw new Error("Failed to delete product");
 };
 
 export function useProducts() {
@@ -92,7 +64,7 @@ export function useProduct(id: string) {
 
 export function useCreateProduct() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: createProduct,
     onSuccess: () => {
@@ -105,7 +77,7 @@ export function useCreateProduct() {
 
 export function useUpdateProduct() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Product> }) =>
       updateProduct(id, data),
@@ -120,7 +92,7 @@ export function useUpdateProduct() {
 
 export function useDeleteProduct() {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: deleteProduct,
     onSuccess: () => {
