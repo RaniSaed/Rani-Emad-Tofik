@@ -1,32 +1,41 @@
 const express = require('express');
 const app = express();
-const PORT = 5000;
+const PORT = 5001; // Changed to avoid conflict with Flask
 
-// כדי ששרת יבין JSON מהבקשות
+// Middleware to parse JSON request bodies
 app.use(express.json());
 
-// מערך זיכרון שמחזיק את המוצרים
+// In-memory array to store products
 let products = [];
 
-// נתיב לקבלת כל המוצרים
+// GET route to fetch all products
 app.get('/api/products', (req, res) => {
   res.json(products);
 });
 
-// נתיב להוספת מוצר חדש
+// POST route to add a new product
 app.post('/api/products', (req, res) => {
   const newProduct = req.body;
-  
-  // בדיקה בסיסית (אופציונלי)
-  if (!newProduct || !newProduct.id || !newProduct.name) {
-    return res.status(400).json({ error: "Missing product id or name" });
+
+  // Validate required fields
+  const requiredFields = ['id', 'name', 'sku', 'price', 'stock'];
+  for (let field of requiredFields) {
+    if (!newProduct[field]) {
+      return res.status(400).json({ error: `Missing field: ${field}` });
+    }
+  }
+
+  // Optional: Check if product with same ID already exists
+  const exists = products.some(p => p.id === newProduct.id);
+  if (exists) {
+    return res.status(400).json({ error: 'Product with this ID already exists' });
   }
 
   products.push(newProduct);
   res.status(201).json(newProduct);
 });
 
-// הפעלת השרת
+// Start the server
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Express server running at http://localhost:${PORT}`);
 });

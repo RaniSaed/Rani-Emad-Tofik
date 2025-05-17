@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 type Product = {
-  id: number;
+ id: number;
   name: string;
   sku: string;
   category: string;

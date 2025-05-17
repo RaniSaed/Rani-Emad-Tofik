@@ -6,13 +6,15 @@ export interface Product {
   category: string;
   price: number;
   cost: number;
-  stock: number;
+  stock: number; // חשוב: השתמש ב-stock (לא stock_level) בקוד frontend
   lowStockThreshold: number;
   description?: string;
   image?: string;
   createdAt: string;
   updatedAt: string;
 }
+
+
 
 export interface RestockLog {
   id: string;

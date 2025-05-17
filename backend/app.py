@@ -1,4 +1,3 @@
-
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from models import db, Product, RestockLog
@@ -8,7 +7,10 @@ from config import Config
 app = Flask(__name__)
 app.url_map.strict_slashes = False  # מאפשר גישה גם עם וגם בלי סלש בסוף
 app.config.from_object(Config)
-CORS(app)
+
+# תיקון CORS - אפשר גישה מהפרונטאנד שלך בlocalhost:8080
+CORS(app, resources={r"/api/*": {"origins": "http://localhost:8080"}})
+
 db.init_app(app)
 
 
@@ -59,12 +61,11 @@ def update_product(product):
         product.category = data.get('category')
         product.price = data.get('price')
         product.cost = data.get('cost')
-        product.stock_level = data.get('stock_level', product.stock_level)  # תיקון שם השדה
+        product.stock_level = data.get('stock_level', product.stock_level)
         db.session.commit()
         return jsonify(product.to_dict()), 200
     except KeyError as e:
         return jsonify({"error": f"Missing field {e}"}), 400
-
 
 
 def delete_product(product):
@@ -109,4 +110,5 @@ def stock_analytics():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True)
+    # הרצת השרת בפורט 5000 עם debug=True
+    app.run(host='localhost', port=5000, debug=True)

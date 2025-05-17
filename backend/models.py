@@ -36,9 +36,15 @@ class RestockLog(db.Model):
     timestamp = db.Column(db.DateTime, server_default=db.func.now())
 
     def to_dict(self):
-        return {
-            'id': self.id,
-            'product_id': self.product_id,
-            'quantity': self.quantity,
-            'timestamp': self.timestamp.isoformat()
-        }
+         return {
+             "id": self.id,
+            "name": self.name,
+            "sku": self.sku,
+            "category": self.category,
+            "price": self.price,
+            "cost": self.cost,
+            "stock": self.stock_level,  # שים לב - זה חשוב
+            "low_stock_threshold": 10,  # אם אין עמודה כזו במסד נתונים, תחזיר ערך קבוע
+            "description": "",  # אם אין עמודה כזו, תחזיר מחרוזת ריקה
+    }
+ 

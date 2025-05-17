@@ -1,24 +1,33 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Product } from "@/types";
 
-// פונקציות עם קריאות fetch אמיתיות ל־backend
+const API_URL = import.meta.env.VITE_API_URL;
 
 const fetchProducts = async (): Promise<Product[]> => {
-  const res = await fetch("http://localhost:5000/api/products");
+  const res = await fetch(`${API_URL}/products`);
   if (!res.ok) throw new Error("Failed to fetch products");
-  return res.json();
+  const data = await res.json();
+  console.log("Raw data from backend:", data);
+  return data.map((product: any) => ({
+    ...product,
+    stock: product.stock_level,
+  }));
 };
 
 const fetchProduct = async (id: string): Promise<Product> => {
-  const res = await fetch(`http://localhost:5000/api/products/${id}`);
+  const res = await fetch(`${API_URL}/products/${id}`);
   if (!res.ok) throw new Error("Failed to fetch product");
-  return res.json();
+  const product = await res.json();
+  return {
+    ...product,
+    stock: product.stock_level,
+  };
 };
 
 const createProduct = async (
   productData: Omit<Product, "id" | "createdAt" | "updatedAt">
 ): Promise<Product> => {
-  const res = await fetch("http://localhost:5000/api/products", {
+  const res = await fetch(`${API_URL}/products`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(productData),
@@ -31,7 +40,7 @@ const updateProduct = async (
   id: string,
   productData: Partial<Product>
 ): Promise<Product> => {
-  const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+  const res = await fetch(`${API_URL}/products/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(productData),
@@ -41,7 +50,7 @@ const updateProduct = async (
 };
 
 const deleteProduct = async (id: string): Promise<void> => {
-  const res = await fetch(`http://localhost:5000/api/products/${id}`, {
+  const res = await fetch(`${API_URL}/products/${id}`, {
     method: "DELETE",
   });
   if (!res.ok) throw new Error("Failed to delete product");
